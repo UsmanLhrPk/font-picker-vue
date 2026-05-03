@@ -10,7 +10,10 @@
 		<ul v-if="state.loadingStatus === 'finished' && fontManager.fonts"
 			:class="{expanded: state.expanded}"
 			@scroll="onScroll">
-			<li v-for="font in fontManager.fonts" :key="font.family">
+			<li class="query-input">
+				<input type="text" v-model="query" placeholder="Search">
+			</li>
+			<li v-for="font in currentFonts" :key="font.family">
 				<button type="button"
 						:class="`font-${snakeCase(font.family)}${pickerSuffix} ${font.family === state.activeFont ? 'active-font' : ''}`"
 						@click="itemClick(font)"
@@ -63,6 +66,8 @@
                 },
                 pickerSuffix: '',
                 fontManager: null,
+								currentFonts: null,
+								query: '',
             };
         },
 
@@ -88,6 +93,7 @@
                         errorText: '',
                         loadingStatus: 'finished'
                     });
+										this.currentFonts = this.fontManager.fonts;
                 })
                 .catch((err) => {
                     // error while loading font list
@@ -106,6 +112,17 @@
                     this.setActiveFont(this.activeFont);
                 }
             },
+						query(val) {
+							this.setState({loadingStatus: 'loading'});
+
+							this.currentFonts = val === ''
+								? this.fontManager.fonts
+								: this.fontManager.fonts.filter(font =>
+									font.family.toLowerCase().includes(val.toLowerCase())
+								);
+
+							this.setState({loadingStatus: 'finished'});
+						}
         },
 
         methods: {
@@ -284,6 +301,12 @@
 			box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
 			transition: 0.3s;
 
+			.query-input {
+				position: sticky;
+				width: 100%;
+				top: 0;
+			}
+
 			&.expanded {
 				max-height: 200px;
 			}
@@ -292,7 +315,7 @@
 				height: 35px;
 				list-style: none;
 
-				button {
+				button, input {
 					height: 100%;
 					width: 100%;
 					display: flex;
@@ -306,6 +329,15 @@
 
 					&.active-font {
 						background: #d1d1d1;
+					}
+				}
+
+				input {
+					height: 35px;
+					width: 100%;
+
+					&:hover, &:focus {
+						background: #fff;
 					}
 				}
 			}
