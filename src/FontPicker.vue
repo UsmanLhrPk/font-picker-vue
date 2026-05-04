@@ -118,7 +118,7 @@
 							this.currentFonts = val === ''
 								? this.fontManager.fonts
 								: this.fontManager.fonts.filter(font =>
-									font.family.toLowerCase().includes(val.toLowerCase())
+									font.family.toLowerCase().startsWith(val.toLowerCase())
 								);
 
 							this.setState({loadingStatus: 'finished'});
